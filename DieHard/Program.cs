@@ -11,7 +11,8 @@ namespace DieHard
         private const char PRINT = 'v';
         private const char PROGRAM_EXIT = 'f';
 
-        private static Container[] containers;
+        private static Graph graph;
+        private static Sequence currentSequence;
 
         private static void Main(string[] args)
         {
@@ -71,68 +72,45 @@ namespace DieHard
 
         private static void CreateContainers(int[] commandParams)
         {
-            containers = new Container[commandParams.Length];
+            currentSequence = new Sequence(commandParams);
+            graph = NewGraph(currentSequence);
+        }
 
-            for(int i = 0; i < commandParams.Length; i++)
-            {
-                Container container = new Container(commandParams[i]);
-                containers[i] = container;
-            }
+        private static Graph NewGraph(Sequence startSequence)
+        {
+            Graph newGraph = new Graph();
+            newGraph.Generate(startSequence);
+
+            return newGraph;
         }
 
         private static void FillContainer(int v)
         {
-            if (v > containers.Length)
-                return;
+            int result = currentSequence.FillContainer(v);
 
-            int index = v - 1;
-            if (containers[index].IsFull)
+            if (result < 0)
                 Console.WriteLine("OPERATION NOT VALID!");
-            else
-                containers[index].Fill();
         }
 
         private static void EmptyContainer(int v)
         {
-            if (v > containers.Length)
-                return;
+            int result = currentSequence.EmptyContainer(v);
 
-            int index = v - 1;
-            if (containers[index].IsEmpty)
+            if (result < 0)
                 Console.WriteLine("OPERATION NOT VALID!");
-            else
-                containers[index].Empty();
         }
 
         private static void MoveContent(int fromIndex, int toIndex)
         {
-            if (fromIndex > containers.Length || toIndex > containers.Length)
-                return;
+            int result = currentSequence.MoveContent(fromIndex, toIndex);
 
-            Container from = containers[fromIndex - 1];
-            Container to = containers[toIndex - 1];
-
-            if(from.IsEmpty || to.IsFull)
+            if (result < 0)
                 Console.WriteLine("OPERATION NOT VALID!");
-
-            from.Level = to.Increase(from.Level);
         }
 
         private static void PrintContainers()
         {
-            string output = "(";
-
-            for (int i = 0; i < containers.Length; i++)
-            {
-                output += containers[i];
-
-                if (i < containers.Length - 1)
-                    output += ",";
-            }
-
-            output += ")";
-
-            Console.WriteLine(output);
+            Console.WriteLine(currentSequence);
         }
     }
 }
