@@ -9,6 +9,7 @@ namespace DieHard
         private const char EMPTY = 'S';
         private const char MOVE = 'T';
         private const char PRINT = 'v';
+        private const char PRINT_GRAPH = 'g';
         private const char PROGRAM_EXIT = 'f';
 
         private static Graph graph;
@@ -67,6 +68,9 @@ namespace DieHard
                 case PRINT:
                     PrintContainers();
                     break;
+                case PRINT_GRAPH:
+                    PrintGraph();
+                    break;
             }
         }
 
@@ -86,7 +90,7 @@ namespace DieHard
 
         private static void FillContainer(int v)
         {
-            int result = currentSequence.FillContainer(v);
+            int result = currentSequence.FillContainer(v - 1);
 
             if (result < 0)
                 Console.WriteLine("OPERATION NOT VALID!");
@@ -94,7 +98,7 @@ namespace DieHard
 
         private static void EmptyContainer(int v)
         {
-            int result = currentSequence.EmptyContainer(v);
+            int result = currentSequence.EmptyContainer(v - 1);
 
             if (result < 0)
                 Console.WriteLine("OPERATION NOT VALID!");
@@ -102,7 +106,7 @@ namespace DieHard
 
         private static void MoveContent(int fromIndex, int toIndex)
         {
-            int result = currentSequence.MoveContent(fromIndex, toIndex);
+            int result = currentSequence.MoveContent(fromIndex - 1, toIndex - 1);
 
             if (result < 0)
                 Console.WriteLine("OPERATION NOT VALID!");
@@ -111,6 +115,11 @@ namespace DieHard
         private static void PrintContainers()
         {
             Console.WriteLine(currentSequence);
+        }
+
+        private static void PrintGraph()
+        {
+            Console.WriteLine(graph);
         }
     }
 }

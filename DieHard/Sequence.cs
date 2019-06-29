@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DieHard
 {
-    public class Sequence
+    public class Sequence : IEquatable<Sequence>
     {
         public Container[] Containers { get; }
 
-        public Sequence(params int[] capacities)
+        public Sequence(int[] capacities)
         {
             Containers = new Container[capacities.Length];
 
@@ -19,24 +20,33 @@ namespace DieHard
             }
         }
 
-        public int FillContainer(int v)
+        public Sequence(Sequence other)
         {
-            if (v > Containers.Length)
+            Containers = new Container[other.Containers.Length];
+
+            for(int i = 0; i < other.Containers.Length; i++)
+            {
+                Container container = new Container(other.Containers[i]);
+                Containers[i] = container;
+            }
+        }
+
+        public int FillContainer(int index)
+        {
+            if (index > Containers.Length - 1)
                 return -2;
 
-            int index = v - 1;
             if (Containers[index].IsFull)
                 return -1;
             else
                 return Containers[index].Fill();
         }
 
-        public int EmptyContainer(int v)
+        public int EmptyContainer(int index)
         {
-            if (v > Containers.Length)
+            if (index > Containers.Length - 1)
                 return -2;
 
-            int index = v - 1;
             if (Containers[index].IsEmpty)
                 return -1;
             else
@@ -45,11 +55,11 @@ namespace DieHard
 
         public int MoveContent(int fromIndex, int toIndex)
         {
-            if (fromIndex > Containers.Length || toIndex > Containers.Length)
+            if (fromIndex > Containers.Length - 1 || toIndex > Containers.Length - 1)
                 return -2;
 
-            Container from = Containers[fromIndex - 1];
-            Container to = Containers[toIndex - 1];
+            Container from = Containers[fromIndex];
+            Container to = Containers[toIndex];
 
             if (from.IsEmpty || to.IsFull)
                 return -1;
@@ -63,6 +73,33 @@ namespace DieHard
         public override string ToString()
         {
             return $"({String.Join<Container>(',', Containers)})";
+        }
+
+        public bool Equals(Sequence other)
+        {
+            if (other == null)
+                return false;
+            return Enumerable.SequenceEqual(this.Containers, other.Containers);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals(obj as Container);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = 7;
+                foreach(var container in Containers)
+                    hashCode = (hashCode * 613) ^ container.GetHashCode();
+
+                return hashCode;
+            }
         }
     }
 }
