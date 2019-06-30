@@ -20,13 +20,17 @@ namespace DieHard
             }
         }
 
-        public Sequence(Sequence other)
+        public Sequence(Sequence other, int[] levels = null)
         {
             Containers = new Container[other.Containers.Length];
 
             for(int i = 0; i < other.Containers.Length; i++)
             {
                 Container container = new Container(other.Containers[i]);
+
+                if(levels != null && levels.Length > i)
+                    container.Level = levels[i];
+
                 Containers[i] = container;
             }
         }
@@ -68,6 +72,20 @@ namespace DieHard
             from.Level = to.Increase(from.Level);
 
             return originalFromLevel - from.Level;
+        }
+
+        public bool Contains(int level)
+        {
+            bool found = false;
+
+            foreach(Container container in Containers)
+            {
+                found = container.Level == level;
+
+                if (found) break;
+            }
+
+            return found;
         }
 
         public override string ToString()

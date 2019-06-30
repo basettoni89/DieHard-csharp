@@ -8,6 +8,8 @@ namespace DieHard
         private const char FILL = 'R';
         private const char EMPTY = 'S';
         private const char MOVE = 'T';
+        private const char EXIST = 'e';
+        private const char REACHABLE = 'r';
         private const char PRINT = 'v';
         private const char PRINT_GRAPH = 'g';
         private const char PROGRAM_EXIT = 'f';
@@ -65,6 +67,12 @@ namespace DieHard
                 case MOVE:
                     MoveContent(commandParams[0], commandParams[1]);
                     break;
+                case EXIST:
+                    Exist(commandParams[0]);
+                    break;
+                case REACHABLE:
+                    Reachable(commandParams);
+                    break;
                 case PRINT:
                     PrintContainers();
                     break;
@@ -110,6 +118,18 @@ namespace DieHard
 
             if (result < 0)
                 Console.WriteLine("OPERATION NOT VALID!");
+        }
+
+        private static void Exist(int level)
+        {
+            string result = graph.Exist(level) ? "YES" : "NO";
+            Console.WriteLine(result);
+        }
+
+        private static void Reachable(int[] commandParams)
+        {
+            string result = graph.Exist(new Sequence(currentSequence, commandParams)) ? "YES" : "NO";
+            Console.WriteLine(result);
         }
 
         private static void PrintContainers()

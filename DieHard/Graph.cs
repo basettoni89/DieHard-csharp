@@ -40,13 +40,32 @@ namespace DieHard
 
                         target = new Sequence(source);
                         r = target.MoveContent(i, j);
-                        if (r >= 0 && !remainingSequences.Contains(target) && !_nodes.Where(n => n.Equals(target)).Any())
+                        if (r >= 0 && !remainingSequences.Contains(target) && !Exist(target))
                         {
                             remainingSequences.Enqueue(target);
                         }
                     }
                 }
             }
+        }
+
+        public bool Exist(Sequence target)
+        {
+            return _nodes.Where(n => n.Equals(target)).Any();
+        }
+
+        public bool Exist(int level)
+        {
+            bool found = false;
+
+            foreach(Node node in _nodes)
+            {
+                found = node.Sequence.Contains(level);
+
+                if (found) break;
+            }
+
+            return found;
         }
 
         public override string ToString()
