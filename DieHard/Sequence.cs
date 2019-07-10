@@ -88,6 +88,11 @@ namespace DieHard
             return found;
         }
 
+        public Sequence GetCopy()
+        {
+            return new Sequence(this);
+        }
+
         public override string ToString()
         {
             return $"({String.Join<Container>(',', Containers)})";

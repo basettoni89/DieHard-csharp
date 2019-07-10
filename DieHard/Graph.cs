@@ -11,42 +11,64 @@ namespace DieHard
 
         public void Generate(Sequence startSequence)
         {
-            Queue<Sequence> remainingSequences = new Queue<Sequence>();
-            remainingSequences.Enqueue(startSequence);
+            Queue<Node> remainingNodes = new Queue<Node>();
+            remainingNodes.Enqueue(new Node(startSequence));
 
-            while(remainingSequences.Count > 0)
+            while(remainingNodes.Count > 0)
             {
-                Sequence source = remainingSequences.Dequeue();
-                _nodes.Add(new Node(source));
-                for(int i=0; i < source.Containers.Length; i++)
+                Node sourceNode = remainingNodes.Dequeue();
+                _nodes.Add(sourceNode);
+
+                for(int i=0; i < sourceNode.Sequence.Containers.Length; i++)
                 {
-                    Sequence target = new Sequence(source);
-                    int r = target.FillContainer(i);
-                    if(r >= 0 && !remainingSequences.Contains(target) && !_nodes.Where(n => n.Equals(target)).Any())
+                    Node targetNode = new Node(sourceNode.Sequence.GetCopy());
+                    int r = targetNode.Sequence.FillContainer(i);
+                    if(r >= 0)
                     {
-                        remainingSequences.Enqueue(target);
+                        if(!sourceNode.Adjacents.Contains(targetNode))
+                            sourceNode.Adjacents.Add(targetNode);
+
+                        if(!remainingNodes.Contains(targetNode) && !_nodes.Where(n => n.Equals(targetNode)).Any())
+                        {
+                            remainingNodes.Enqueue(targetNode);
+                        }
                     }
 
-                    target = new Sequence(source);
-                    r = target.EmptyContainer(i);
-                    if (r >= 0 && !remainingSequences.Contains(target) && !_nodes.Where(n => n.Equals(target)).Any())
+                    targetNode = new Node(sourceNode.Sequence.GetCopy());
+                    r = targetNode.Sequence.EmptyContainer(i);
+                    if (r >= 0)
                     {
-                        remainingSequences.Enqueue(target);
+                        sourceNode.Adjacents.Add(targetNode);
+
+                        if (!remainingNodes.Contains(targetNode) && !_nodes.Where(n => n.Equals(targetNode)).Any())
+                        {
+                            remainingNodes.Enqueue(targetNode);
+                        }
                     }
 
-                    for(int j = 0; j < source.Containers.Length; j++)
+                    for(int j = 0; j < sourceNode.Sequence.Containers.Length; j++)
                     {
                         if (i == j) continue;
 
-                        target = new Sequence(source);
-                        r = target.MoveContent(i, j);
-                        if (r >= 0 && !remainingSequences.Contains(target) && !Exist(target))
+                        targetNode = new Node(sourceNode.Sequence.GetCopy());
+                        r = targetNode.Sequence.MoveContent(i, j);
+                        if (r >= 0)
                         {
-                            remainingSequences.Enqueue(target);
+                            sourceNode.Adjacents.Add(targetNode);
+
+                            if (!remainingNodes.Contains(targetNode) && !Exist(targetNode))
+                            {
+                                remainingNodes.Enqueue(targetNode);
+                            }
                         }
                     }
                 }
             }
+        }
+
+        private bool Exist(Node target)
+        {
+            return _nodes.Where(n => n.Equals(target)).Any();
         }
 
         public bool Exist(Sequence target)
@@ -76,7 +98,7 @@ namespace DieHard
         private class Node : IEquatable<Node>, IEquatable<Sequence>
         {
             public Sequence Sequence { get; }
-            public List<Node> Adjacents { get; }
+            public List<Node> Adjacents { get; } = new List<Node>();
 
             public Node(Sequence sequence)
             {
@@ -86,7 +108,20 @@ namespace DieHard
 
             public override string ToString()
             {
-                return Sequence.ToString();
+                string adjacents = string.Empty;
+
+                int i = 0;
+                foreach(Node adj in Adjacents)
+                {
+                    adjacents += adj.Sequence.ToString();
+
+                    if (i < Adjacents.Count - 1)
+                        adjacents += ", ";
+
+                    i++;
+                }
+
+                return $"{Sequence.ToString()}\t{adjacents}";
             }
 
             public bool Equals(Node other)
